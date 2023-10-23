@@ -1,15 +1,21 @@
 "use client";
+import { AuthContext } from "@/contexts/authentication/authenticationProvider";
+import { signInWithEmail } from "@/lib/authentication/auth";
+import { redirect } from "next/navigation";
 import React, {
   Dispatch,
   FormEvent,
   SetStateAction,
   useCallback,
   useState,
+  useContext,
 } from "react";
 
 function Page() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  const { user } = useContext(AuthContext);
 
   const setValues = (
     setState: Dispatch<SetStateAction<string>>,
@@ -21,10 +27,11 @@ function Page() {
   const handleLogin = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      signInWithEmail(email, password);
     },
     [email, password]
   );
-
+  if (user) return redirect("/businesses");
   return (
     <main>
       <form
