@@ -1,18 +1,30 @@
+"use client";
 import { readData } from "@/lib/firebase/realtimeDatabase";
 import { Business } from "@/types/businesses";
 import { listOfObjectsToArray } from "@/utils/utils";
+import Link from "next/link";
 
-import React, { useContext, useEffect, useMemo } from "react";
-import { AuthContext } from "@/contexts/authentication/authenticationProvider";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 
 function Page() {
-  const businesses = useMemo<Promise<Array<Business>>>(async () => {
+  const [businesses, setBusinesses] = useState<Array<Business>>([]);
+
+  const getBusinesses = useCallback(async () => {
     const businessesRes = await readData(`/businesses`);
-    if (!businessesRes) return [];
-    const businesses = listOfObjectsToArray(businessesRes).map((business) => {
-      return { businessName: business.businessName };
-    });
-    return { props: { businesses } };
+    if (!businessesRes) return;
+    const businesses: Array<Business> = listOfObjectsToArray(businessesRes).map(
+      (business: [string, Business]) => {
+        return {
+          businessName: business[1].businessName,
+          businessId: business[1].businessId,
+        };
+      }
+    );
+    setBusinesses(businesses);
+  }, []);
+
+  useEffect(() => {
+    getBusinesses();
   }, []);
 
   return (
@@ -23,29 +35,17 @@ function Page() {
       >
         {businesses.map((business, index) => (
           <li key={index}>
-            <button
-              type="button"
+            <Link
               className="text-bold font-mono text-lg rounded-md shadow-xl p-3"
+              href={`/business/${business.businessId}`}
             >
               {business.businessName}
-            </button>
+            </Link>
           </li>
         ))}
       </ul>
     </main>
   );
-}
-
-export async function getServerSideProps() {
-  const businessesRes = await readData(`/businesses`);
-  if (!businessesRes)
-    return {
-      props: { businesses: [] },
-    };
-  const businesses = listOfObjectsToArray(businessesRes).map((business) => {
-    return { businessName: business.businessName };
-  });
-  return { props: { businesses } };
 }
 
 export default Page;

@@ -1,9 +1,10 @@
 export type Business = {
     businessName: string;
     businessId?: string;
-    services?: Array<BusinessServices>
+    services?: Array<BusinessService>
 }
-type BusinessServices = {
+type BusinessService = {
     serviceName: string;
-    servicePrice: number
+    servicePrice: number;
+    serviceId: string
 }
