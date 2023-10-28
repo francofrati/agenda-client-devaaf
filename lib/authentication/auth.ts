@@ -1,4 +1,4 @@
-import { signInWithEmailAndPassword } from "firebase/auth"
+import { signInWithEmailAndPassword, signOut } from "firebase/auth"
 import { auth } from "../firebase/config"
 
 export const signInWithEmail = async (email: string, password: string) => {
@@ -12,4 +12,8 @@ export const signInWithEmail = async (email: string, password: string) => {
     } catch (error) {
         console.log(error)
     }
+}
+
+export const signOutFromFirebase = () => {
+    signOut(auth)
 }

@@ -1,22 +1,20 @@
 import { readData } from "@/lib/firebase/realtimeDatabase";
 import { Business } from "@/types/businesses";
 import { listOfObjectsToArray } from "@/utils/utils";
-import "@/app/globals.css";
 
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import { AuthContext } from "@/contexts/authentication/authenticationProvider";
-import { useAuth } from "@/hooks/useAuth";
 
-interface props {
-  businesses: Business[];
-}
+function Page() {
+  const businesses = useMemo<Promise<Array<Business>>>(async () => {
+    const businessesRes = await readData(`/businesses`);
+    if (!businessesRes) return [];
+    const businesses = listOfObjectsToArray(businessesRes).map((business) => {
+      return { businessName: business.businessName };
+    });
+    return { props: { businesses } };
+  }, []);
 
-function Page({ businesses }: props) {
-  const { user, loading } = useAuth();
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-  if (loading) return <>Loading...</>;
   return (
     <main>
       <ul

@@ -6,13 +6,17 @@ import { createContext, ReactNode } from "react";
 
 interface contextProps {
   user: User | null;
+  loading: boolean;
 }
 
 interface providerProps {
   children: ReactNode;
 }
 
-export const AuthContext = createContext<contextProps>({ user: null });
+export const AuthContext = createContext<contextProps>({
+  user: null,
+  loading: true,
+});
 
 function AuthenticationProvider({ children }: providerProps) {
   const path = usePathname();
@@ -22,7 +26,9 @@ function AuthenticationProvider({ children }: providerProps) {
   if (loading) return <>Loading...</>;
   if (!loading && !user && path !== "/login") return redirect("/login");
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, loading }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 
