@@ -35,7 +35,7 @@ function Page() {
   return (
     <main>
       <form
-        className="flex flex-col gap-5 w-[300px] border p-4 rounded-sm mx-auto my-10"
+        className="flex flex-col gap-5 w-[300px] p-4 rounded-sm mx-auto my-10 border-2"
         onSubmit={handleLogin}
       >
         <fieldset className="flex flex-col gap-3">
@@ -50,7 +50,7 @@ function Page() {
                 const { value } = e.target;
                 setValues(setEmail, value);
               }}
-              className="px-3 py-1 text-black"
+              className="px-3 py-1 text-black border rounded-sm"
             />
           </label>
           <label htmlFor="" className="flex flex-col">
@@ -60,7 +60,7 @@ function Page() {
               placeholder="Password"
               name="password"
               value={password}
-              className="px-3 py-1 text-black"
+              className="px-3 py-1 text-black border rounded-sm"
               onChange={(e) => {
                 const { value } = e.target;
                 setValues(setPassword, value);
@@ -68,7 +68,7 @@ function Page() {
             />
           </label>
         </fieldset>
-        <button type="submit" className="bg-white text-black rounded-sm">
+        <button type="submit" className="bg-white text-black rounded-sm border py-2 hover:bg-slate-200">
           Login
         </button>
       </form>
