@@ -2,6 +2,8 @@
 import { readData } from "@/lib/firebase/realtimeDatabase";
 import { Business, BusinessService } from "@/types/businesses";
 import { listOfObjectsToArray, numberToCurrency } from "@/utils/utils";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Link from "next/link";
 import React, {
   useEffect,
@@ -51,48 +53,50 @@ function Page({ params }: { params: { businessId: string } }) {
   }, []);
 
   return (
-    <div>
-      {business ? (
-        <>
-          <header className="flex items-center gap-10 pl-4">
-            <Link
-              className="rounded-full font-bold text-lg text-center w-8 h-8 border hover:bg-slate-100 cursor-pointer shadow-sm"
-              href={"/businesses"}
-            >
-              {"<"}
-            </Link>
-            <h1 className="font-bold text-2xl font-mono m-4">
-              {business.businessName}
-            </h1>
-          </header>
-          <ul className="p-4 ">
-            {business.services?.map((service) => {
-              return (
-                <li
-                  key={service.serviceId}
-                  onClick={() => {
-                    selectService(service);
-                    openCalendarModal();
-                  }}
-                  className="flex items-center justify-between border list-none max-w-[500px] p-3 rounded shadow-sm mb-2 hover:bg-slate-100 cursor-pointer"
-                >
-                  <span>{service.serviceName}</span>
-                  {numberToCurrency(service.servicePrice)}
-                </li>
-              );
-            })}
-          </ul>
-          <CalendarModal
-            handleClose={closeCalendarModal}
-            isOpen={calendarModal}
-            service={selectedService}
-            setDate={() => {}}
-          />
-        </>
-      ) : (
-        <>Loading...</>
-      )}
-    </div>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <div>
+        {business ? (
+          <>
+            <header className="flex items-center gap-10 pl-4">
+              <Link
+                className="rounded-full font-bold text-lg text-center w-8 h-8 border hover:bg-slate-100 cursor-pointer shadow-sm"
+                href={"/businesses"}
+              >
+                {"<"}
+              </Link>
+              <h1 className="font-bold text-2xl font-mono m-4">
+                {business.businessName}
+              </h1>
+            </header>
+            <ul className="p-4 ">
+              {business.services?.map((service) => {
+                return (
+                  <li
+                    key={service.serviceId}
+                    onClick={() => {
+                      selectService(service);
+                      openCalendarModal();
+                    }}
+                    className="flex items-center justify-between border list-none max-w-[500px] p-3 rounded shadow-sm mb-2 hover:bg-slate-100 cursor-pointer"
+                  >
+                    <span>{service.serviceName}</span>
+                    {numberToCurrency(service.servicePrice)}
+                  </li>
+                );
+              })}
+            </ul>
+            <CalendarModal
+              handleClose={closeCalendarModal}
+              isOpen={calendarModal}
+              service={selectedService}
+              setDate={() => {}}
+            />
+          </>
+        ) : (
+          <>Loading...</>
+        )}
+      </div>
+    </LocalizationProvider>
   );
 }
 

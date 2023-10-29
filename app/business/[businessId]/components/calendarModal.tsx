@@ -1,10 +1,13 @@
+"use client";
 import { BusinessService } from "@/types/businesses";
-import { Modal, Calendar } from "antd";
-import type { CalendarProps } from "antd";
-import { useState } from "react";
-import { Dayjs } from "dayjs";
-import dayjs from "dayjs";
+import { Modal } from "@mui/material";
+import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 
+import dayjs, { Dayjs } from "dayjs";
+import { useEffect, useState } from "react";
+import DayAvailableSchedule from "./dayAvailableSchedule";
+
+type PickerSelectionState = "partial" | "shallow" | "finish";
 interface props {
   isOpen: boolean;
   handleClose: () => void;
@@ -18,69 +21,48 @@ interface SelectInfo {
 
 function CalendarModal({ handleClose, isOpen, service }: props) {
   const [date, setDate] = useState<Dayjs>(dayjs());
+  const [time, setTime] = useState<string>("");
 
-  const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>["mode"]) => {
-    console.log(value.format("YYYY-MM-DD"), mode);
-    console.log(mode);
-    if (
-      value.endOf("d").valueOf() >
-        dayjs().subtract(1, "day").endOf("d").valueOf() &&
-      value.endOf("d").valueOf() <
-        dayjs(dayjs().valueOf() + 12096e5)
-          .endOf("d")
-          .valueOf()
-    ) {
-      setDate(value);
-      console.log("in range");
-      return;
-    } else {
-      const diffToStartOfDateRange = value.diff(dayjs().subtract(1, "day"));
-      const diffToEndOdDateRange = value.diff(
-        dayjs(dayjs().valueOf() + 12096e5)
-      );
-      if (diffToEndOdDateRange > diffToStartOfDateRange) {
-        setDate(dayjs().subtract(1, "day"));
-        console.log("Near to start");
-      } else {
-        console.log("Near to end");
-        setDate(dayjs(dayjs().valueOf() + 12096e5));
-      }
-    }
+  const onChange = (
+    value: Dayjs | null,
+    selectionState: PickerSelectionState | undefined
+  ) => {
+    setDate(value as Dayjs);
   };
-  const onChange = (value: Dayjs) => {
-    console.log("onChange: ", value.format("DD-MM-YYYY"));
+
+  const onTimeChange = (time: string) => {
+    setTime(time);
   };
-  const onSelect = (date: Dayjs, selectInfo: SelectInfo) => {
-    console.log("onSelect: ", date.format("DD-MM-YYYY"));
-    if (selectInfo.source === "date") {
-      setDate(date);
-    }
-  };
+
+  useEffect(() => {
+    setTime("");
+  }, [date]);
+
   return (
-    <Modal
-      title={"Select a date for your appointment: " + service?.serviceName}
-      open={isOpen}
-      onCancel={handleClose}
-      onOk={handleClose}
-    >
-      <Calendar
-        // disabledDate={(date) => {
-        //   if (date.format("DD-MM-YYYY") === dayjs().format("DD-MM-YYYY")) {
-        //     return false;
-        //   }
-        //   return date.isBefore(dayjs(), "d");
-        // }}
-        fullscreen={false}
-        onPanelChange={onPanelChange}
-        value={date}
-        onChange={onChange}
-        onSelect={onSelect}
-        mode="month"
-        validRange={[
-          dayjs().subtract(1, "day"),
-          dayjs(dayjs().valueOf() + 12096e5),
-        ]}
-      />
+    <Modal open={isOpen} onClose={handleClose}>
+      <div
+        className="bg-white rounded-sm px-20 py-10 absolute top-[50%] left-[50%] "
+        style={{ transform: "translate(-50%, -50%)", outline: "none" }}
+      >
+        <header>
+          <h1 className="text-center font-mono text-lg font-medium border-b border-b-black">
+            Set your appointment - {service?.serviceName}
+          </h1>
+        </header>
+        <DateCalendar
+          disablePast
+          shouldDisableDate={(day) =>
+            day.valueOf() > dayjs().valueOf() + 12096e5
+          }
+          value={date}
+          onChange={onChange}
+        />
+        <DayAvailableSchedule onTimeChange={onTimeChange} selectedTime={time} />
+        <p className="text-center text-base font-mono font-normal mt-6">
+          {date.format("DD-MM")}
+          {time ? " at " + time : ""}
+        </p>
+      </div>
     </Modal>
   );
 }
