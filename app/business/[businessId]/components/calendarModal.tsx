@@ -4,8 +4,9 @@ import { Modal } from "@mui/material";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 
 import dayjs, { Dayjs } from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import DayAvailableSchedule from "./dayAvailableSchedule";
+import { CalendarContext } from "../context/CalendarContext";
 
 type PickerSelectionState = "partial" | "shallow" | "finish";
 interface props {
@@ -22,6 +23,9 @@ interface SelectInfo {
 function CalendarModal({ handleClose, isOpen, service }: props) {
   const [date, setDate] = useState<Dayjs>(dayjs());
   const [time, setTime] = useState<string>("");
+  const [availableTimes, setAvailableTimes] = useState<Array<string>>([]);
+
+  const { availableDates } = useContext(CalendarContext);
 
   const onChange = (
     value: Dayjs | null,
@@ -35,8 +39,26 @@ function CalendarModal({ handleClose, isOpen, service }: props) {
   };
 
   useEffect(() => {
+    if (availableDates.length) {
+      // @ts-ignore
+      const times = Object.entries(
+        availableDates.find(
+          (day: any) =>
+            +Object.entries(day)[0][0] ===
+            date.set("hour", 9).set("minute", 0).set("second", 0).unix()
+        )
+      )[0][1].map((o: any) => Object.entries(o)[0][0]);
+      // .map((o: any) => Object.entries(o));
+      // .map((arr) => Object.entries(arr[0])[0][0]);
+      setAvailableTimes(times);
+    }
     setTime("");
   }, [date]);
+
+  useEffect(() => {
+    if (availableDates.length)
+      setDate(dayjs(+Object.entries(availableDates[0])[0][0] * 1000));
+  }, [availableDates]);
 
   return (
     <Modal open={isOpen} onClose={handleClose}>
@@ -52,12 +74,29 @@ function CalendarModal({ handleClose, isOpen, service }: props) {
         <DateCalendar
           disablePast
           shouldDisableDate={(day) =>
-            day.valueOf() > dayjs().valueOf() + 12096e5
+            availableDates.find((date: any) => {
+              const timestamp = +Object.entries(date)[0][0] * 1000;
+
+              const d1 = dayjs(timestamp).format("DD/MM/YYYY");
+              const d2 = day.format("DD/MM/YYYY");
+              if (d1 === d2) {
+                // console.log(d1, d2);
+                return true;
+              } else {
+                return false;
+              }
+            })
+              ? false
+              : true
           }
           value={date}
           onChange={onChange}
         />
-        <DayAvailableSchedule onTimeChange={onTimeChange} selectedTime={time} />
+        <DayAvailableSchedule
+          onTimeChange={onTimeChange}
+          selectedTime={time}
+          times={availableTimes}
+        />
         <p className="text-center text-base font-mono font-normal mt-6">
           {date.format("DD-MM")}
           {time ? " at " + time : ""}

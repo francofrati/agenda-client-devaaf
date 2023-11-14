@@ -1,21 +1,15 @@
 import React, { useState } from "react";
 
-function DayAvailableSchedule({ onTimeChange, selectedTime }: any) {
+function DayAvailableSchedule({ onTimeChange, selectedTime, times }: any) {
   const [available] = useState<Array<any>>([
     "10:00",
-    "12:00",
-    "13:00",
-    "16:00",
-    "12:00",
-    "13:00",
-    "16:00",
     "12:00",
     "13:00",
     "16:00",
   ]);
   return (
     <div className="flex flex-wrap w-full justify-center gap-4">
-      {available.map((time) => {
+      {times.map((time: string) => {
         return (
           <button
             onClick={() => {
